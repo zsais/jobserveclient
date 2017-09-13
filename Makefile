@@ -1,5 +1,5 @@
 PACKAGE = server
-PACKAGE_PATH = jsclient/cmd
+PACKAGE_PATH = github.com/zsais/jobserveclient/cmd
 
 all: $(PACKAGE)
 
