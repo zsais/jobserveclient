@@ -24,7 +24,7 @@ unittest:
 	go test ./jsclient/ -cover
 
 functionaltest:
-	./functionaltests/scheduler-darwin-amd64
+	./functionaltests/scheduler -input ./functionaltests/input.json
 
 lint:
 	gometalinter ./jsclient ./cmd/...

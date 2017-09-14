@@ -30,7 +30,7 @@ Build the binary and start the jobserveclient with:
 
 `make run`
 
-From there you can run the cmd/scheduler binaries to check for functional correctness. The binary at `bin/jsclient` can be run on darwin systems and is listening on port `3030`.
+From there you can run the cmd/scheduler binaries to check for functional correctness. The binary at `bin/jsclient` can be run on darwin systems and is listening on port `3000`.
 
 Usage
 ---

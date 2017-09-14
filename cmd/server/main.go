@@ -11,5 +11,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("error creating NewListener(): %v\n", err)
 	}
+
+	defer l.Close() // nolint: errcheck
 	jsclient.ProcessConnections(l)
 }

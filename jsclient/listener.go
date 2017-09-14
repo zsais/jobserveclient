@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	defaultPort     = ":3030"
+	defaultPort     = ":3000"
 	timeoutDuration = 10 * time.Second
 )
 
@@ -17,8 +17,6 @@ func processQueue(tasks chan *task) {
 	for {
 		currTask := <-tasks
 		executeCommand(currTask)
-
-		_ = <-tasks
 	}
 }
 
@@ -28,36 +26,35 @@ func ProcessConnections(l net.Listener) {
 	go processQueue(tasks)
 	for {
 		conn, err := l.Accept()
-
 		if err != nil {
-			fmt.Printf("cant accept conn, err: %v\n", err)
+			fmt.Printf("cannot accept conn, err: %v\n", err)
 			continue
 		}
+
 		go func() {
-			defer conn.Close()
+			defer conn.Close() // nolint: errcheck
 			reader := bufio.NewReader(conn)
 			for {
-				conn.SetDeadline(time.Now().Add(timeoutDuration))
+				conn.SetDeadline(time.Now().Add(timeoutDuration)) // nolint: errcheck
 				input, err := reader.ReadString('\n')
-				println(input)
 				if err != nil {
 					break
 				}
-				var request *taskRequest
 
+				var request *taskRequest
 				err = json.Unmarshal([]byte(input), &request)
 				if err != nil {
 					break
 				}
+
 				currTask := &task{conn, request, &taskResult{0, 0, 0, "", ""}}
 
-				if len(tasks) == 0 {
-					tasks <- currTask
-					tasks <- nilTask
-				} else {
-					currTask.result.exitCode = exitCode
+				select {
+				case tasks <- currTask: // add new task to channel if empty
+				default: // respond with concurrencyError
+					currTask.result.exitCode = errorCode
 					currTask.result.error = concurrencyError
-					errorOutput(currTask)
+					sendJSON(currTask, errorOutput(currTask))
 				}
 			}
 		}()
